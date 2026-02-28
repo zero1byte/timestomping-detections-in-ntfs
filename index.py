@@ -1,15 +1,31 @@
 from dfvfs.helpers import volume_scanner
 from dfvfs.resolver import resolver
+from dfvfs.lib import definitions
 
-source = "disk.dd"
+SOURCE = r'\\.\C:'   # LIVE NTFS partition
 
 scanner = volume_scanner.VolumeScanner()
-base_path_specs = scanner.GetBasePathSpecs(source)
+
+print("[+] Scanning volume...")
+
+base_path_specs = scanner.GetBasePathSpecs(
+    SOURCE,
+    scan_context=None)
 
 for path_spec in base_path_specs:
+
     file_entry = resolver.Resolver.OpenFileEntryByPathSpec(
-        path_spec, location="/$MFT")
+        path_spec,
+        location='/$MFT')
 
     if file_entry:
-        data = file_entry.GetFileObject().read()
-        print("MFT size:", len(data))
+        print("[+] $MFT found")
+
+        file_object = file_entry.GetFileObject()
+
+        with open("MFT_dump.bin", "wb") as f:
+            data = file_object.read()
+            f.write(data)
+
+        print("[+] $MFT extracted successfully")
+        break
