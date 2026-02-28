@@ -1,0 +1,6 @@
+# these all packages are required to run application
+fastapi
+uvicorn
+psutil
+python-multipart
+dfvfs
