@@ -1,8 +1,9 @@
 import os
+import re
 import sys
 from typing import Optional, Tuple
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 # Add backend/routes to path for importing log_usn_to_csv
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -16,10 +17,19 @@ EXPORTS_DIR = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "..", "exports"
 )
 
+# Security: Validate extraction_id format to prevent path traversal
+EXTRACTION_ID_PATTERN = re.compile(r'^[A-Za-z]_\d{8}_\d{6}$')
+
 
 class ConvertRequest(BaseModel):
     extraction_id: str
     output_format: str = "csv"
+
+    @validator('extraction_id')
+    def validate_extraction_id(cls, v):
+        if not EXTRACTION_ID_PATTERN.match(v):
+            raise ValueError('Invalid extraction_id format. Expected: {DRIVE}_{YYYYMMDD}_{HHMMSS}')
+        return v
 
 
 def parse_extraction_id(extraction_id: str) -> Tuple[str, str]:

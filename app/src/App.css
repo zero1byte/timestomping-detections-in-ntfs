@@ -589,6 +589,12 @@ tr:hover td { background: var(--gray-50); }
 .stat-change.positive { color: var(--success); }
 .stat-change.negative { color: var(--danger); }
 
+.stat-sub {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin-top: 0.25rem;
+}
+
 /* Tabs */
 .tabs {
   display: flex;
@@ -697,6 +703,8 @@ tr:hover td { background: var(--gray-50); }
 .mb-4 { margin-bottom: 1rem; }
 .mt-2 { margin-top: 0.5rem; }
 .mt-4 { margin-top: 1rem; }
+.ml-1 { margin-left: 0.25rem; }
+.mr-1 { margin-right: 0.25rem; }
 .text-sm { font-size: 0.8125rem; }
 .text-xs { font-size: 0.75rem; }
 .text-muted { color: var(--gray-500); }
@@ -707,6 +715,7 @@ tr:hover td { background: var(--gray-50); }
 /* Additional utilities */
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
 .text-danger { color: var(--danger); }
+.text-nowrap { white-space: nowrap; }
 .font-bold { font-weight: 700; }
 .clickable { cursor: pointer; }
 .clickable:hover { background: var(--gray-50); }

@@ -21,10 +21,15 @@ try:
 except ImportError as e:
     raise RuntimeError(f"Failed to import extraction modules: {str(e)}")
 
+import re
+
 router = APIRouter()
 
 # Base export directory
 BASE_EXPORT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "exports")
+
+# Security: Valid drive letter pattern
+DRIVE_PATTERN = re.compile(r'^[A-Za-z]$')
 
 
 class DriveRequest(BaseModel):
@@ -42,8 +47,11 @@ class ExtractionResponse(BaseModel):
 
 
 def normalize_drive(drive_letter: str) -> str:
-    """Normalize drive letter input"""
-    return drive_letter.rstrip(":").upper()
+    """Normalize and validate drive letter input"""
+    normalized = drive_letter.rstrip(":").upper()
+    if not DRIVE_PATTERN.match(normalized):
+        raise ValueError(f"Invalid drive letter: {drive_letter}. Must be a single letter A-Z.")
+    return normalized
 
 
 def create_export_dir(file_type: str, drive_letter: str) -> str:
