@@ -1,12 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from routes import api_router
+import os
 
 app = FastAPI(
     title="NTFS Timestomping Detection API",
     description="API for detecting timestomping in NTFS file systems",
     version="1.0.0"
 )
+
+# Get the exports directory path
+EXPORTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "exports")
+
+# Create exports directory if it doesn't exist
+os.makedirs(EXPORTS_DIR, exist_ok=True)
+
+# Mount exports directory for static file serving
+app.mount("/exports", StaticFiles(directory=EXPORTS_DIR), name="exports")
 
 # CORS middleware for frontend
 app.add_middleware(
@@ -35,4 +46,4 @@ def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="127.0.0.1", port=5000)

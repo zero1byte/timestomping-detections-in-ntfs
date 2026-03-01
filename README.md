@@ -10,3 +10,5 @@ To run server at localhost :
 
 For windows we need:
     Visual Studio Build Tools for C++   
+
+gcc low-level-c/extract_mft.c -o low-level-c/extract_mft.exe -ladvapi32
