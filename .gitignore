@@ -1,0 +1,13 @@
+*.bin
+__pycache__/*
+*.log
+__pycache__/extract_logfile.cpython-313.pyc
+.vscode/
+backend\__pycache__\*
+backend/ntfs_exports/*
+backend/ntfs_exports/__pycache__/*
+backend/routes/__pycache__/*
+backend/routes/disks/__pycache__/*
+backend/routes/logs/__pycache__/*
+isea/$LogFile
+backend/__pycache__/*
