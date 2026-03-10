@@ -3,5 +3,4 @@ fastapi
 uvicorn
 psutil
 python-multipart
-dfvfs
  

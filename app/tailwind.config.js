@@ -4,8 +4,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: "#0f172a",
-        mist: "#e2e8f0",
+        "theme-bg": "var(--theme-bg)",
+        "theme-fg": "var(--theme-fg)",
+        "theme-accent": "var(--theme-accent)",
       },
     },
   },

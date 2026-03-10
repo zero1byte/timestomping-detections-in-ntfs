@@ -4,7 +4,7 @@ Install required packages
 Run python server with Admin privilages
     py -m uvicorn main:app --reload --port 3000
 
-To run server at localhost :
+To run server at localhost (Admin privilages):
     cd backend
     uvicorn main:app --reload --port 3000
 

@@ -4,14 +4,17 @@
 
 :root {
   font-family: "Segoe UI", "Calibri", "Trebuchet MS", sans-serif;
-  color: #0f172a;
-  background-color: #f8fafc;
+  --theme-bg: #d9dee6;
+  --theme-fg: #1f2937;
+  --theme-accent: #2f5d8a;
+  color: var(--theme-fg);
+  background-color: var(--theme-bg);
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  background: radial-gradient(circle at top right, #dbeafe 0%, #f8fafc 50%, #eef2ff 100%);
+  background: radial-gradient(circle at top right, #cfd6e1 0%, var(--theme-bg) 55%, #c8d1dd 100%);
 }
 
 * {
