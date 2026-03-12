@@ -82,7 +82,9 @@ Option B — manual:
 
 ```bash
 cd backend
-python -m uvicorn main:app --host 127.0.0.1 --port 5000 --reload
+python -m uvicorn main:app --host 127.0.0.1 --port 3000 --reload
+or
+uvicorn main:app --host 127.0.0.1 --port 3000 --reload
 ```
 
 > The backend must run as **Administrator** to read raw NTFS volumes.
