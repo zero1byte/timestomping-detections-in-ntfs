@@ -1,93 +1,124 @@
 # Timestomping Detection in NTFS
 
-A forensic analysis tool that detects timestamp manipulation (timestomping) in NTFS file systems by correlating timestamps across multiple NTFS artifacts — **$MFT ($SI vs $FN)**, **$UsnJrnl**, and **$LogFile**.
+An end-to-end digital forensics project for detecting timestamp tampering (timestomping) on NTFS volumes by correlating metadata from $MFT, $UsnJrnl, and $LogFile.
 
-## How It Works
+## Project Status
 
-Timestomping is an anti-forensic technique where attackers alter file timestamps to blend malicious files with legitimate ones. This tool extracts raw NTFS metadata and cross-references:
+Completed on March 20, 2026.
 
-| Artifact | Purpose |
+This repository now includes:
+
+- A React + Vite frontend for investigator workflow
+- A FastAPI backend for extraction and analysis APIs
+- NTFS artifact extraction and CSV conversion pipeline
+- Export management for generated forensic data
+- Final UI screenshots documented below
+
+## Core Detection Idea
+
+Timestomping often modifies timestamps in $STANDARD_INFORMATION ($SI) but cannot cleanly align every related NTFS artifact.
+
+This project cross-checks:
+
+| Artifact | Why it matters |
 |---|---|
-| **$MFT — $STANDARD_INFORMATION** | Core file timestamps (easily modified by attackers) |
-| **$MFT — $FILE_NAME** | Kernel-managed timestamps (cannot be modified from user-mode) |
-| **$UsnJrnl** | Change journal recording every file system operation |
-| **$LogFile** | NTFS transaction log capturing low-level metadata operations |
+| $MFT ($SI) | Common target for user-mode timestamp modification |
+| $MFT ($FN) | Kernel-maintained timestamps that are harder to falsify consistently |
+| $UsnJrnl | File change journal containing operation history |
+| $LogFile | Low-level NTFS transaction records |
 
-Discrepancies between `$SI` and `$FN` timestamps, combined with USN and LogFile analysis, flag potential tampering.
+Any mismatch pattern across these sources increases confidence of tampering.
+
+## Features
+
+- Detect available NTFS partitions
+- Extract $MFT, $LogFile, and $UsnJrnl from selected drive
+- Convert extracted artifacts into analysis-ready CSV output
+- Perform timestamp correlation and anomaly scoring
+- Classify suspicious entries by severity
+- List and download exported files from backend endpoints
+
+## High-Level Architecture
+
+1. Frontend requests partition list from backend
+2. Investigator selects a target volume
+3. Backend runs extraction pipeline for NTFS artifacts
+4. Backend converts raw artifacts to CSV and computes detection fields
+5. Frontend displays final findings and export links
 
 ## Project Structure
 
 ```
-├── app/                    # React + Vite frontend
+.
+├── app/                        # React + Vite frontend
 │   └── src/routes/
-│       ├── home.jsx        # Landing page with project overview
-│       ├── partitions.jsx  # NTFS drive/partition selector
-│       ├── analyze.jsx     # Live artifact extraction with progress
-│       └── results.jsx     # Timestomping detection results table
-├── backend/                # FastAPI backend
-│   ├── main.py             # App entry point, CORS, static mounts
+│       ├── home.jsx            # Landing page
+│       ├── partitions.jsx      # NTFS partition selector
+│       ├── analyze.jsx         # Extraction and analysis trigger
+│       ├── results.jsx         # Findings and severity view
+│       └── viewcsv.jsx         # CSV viewing route
+├── backend/                    # FastAPI backend
+│   ├── main.py                 # App startup, CORS, mounts
 │   └── routes/
-│       ├── drives.py       # GET /drives — list NTFS partitions
-│       ├── extract_ntfs.py # POST /extract/* — extract MFT, LogFile, UsnJrnl
-│       ├── analyze.py      # POST /analyze/* — analysis endpoints
-│       ├── mft_to_csv.py   # MFT → CSV with timestomping detection columns
+│       ├── drives.py           # Drive detection
+│       ├── extract_ntfs.py     # Extraction routes
+│       ├── analyze.py          # Analysis routes
+│       ├── mft_to_csv.py       # MFT conversion route
 │       └── analysis/
-│           ├── convert/    # CSV conversion endpoints
-│           └── files/      # Export listing endpoints
-├── exports/                # Extracted artifact binaries & CSVs
-├── low-level-c/            # C-based MFT extraction utility
-└── requirements.txt
+│           ├── convert/        # LogFile/MFT/UsnJrnl converters
+│           └── files/          # Export listing utilities
+├── exports/                    # Generated forensic outputs
+├── low-level-c/                # Native helper for low-level extraction
+├── docs/screenshots/           # README screenshots
+├── requirements.txt
+└── run_server_admin.bat
 ```
 
 ## Prerequisites
 
-- **Python 3.10+**
-- **Node.js 18+**
-- **Windows** (NTFS access requires admin privileges)
-- **Visual Studio Build Tools for C++** (for low-level extraction module)
+- Python 3.10+
+- Node.js 18+
+- Windows (administrator privileges required for raw NTFS access)
+- Visual Studio Build Tools for C++ (if using native helper build path)
 
-## Installation
+## Setup
 
-### Backend
+### 1) Install backend dependencies
 
 ```bash
 cd backend
 pip install -r ../requirements.txt
 ```
 
-### Frontend
+### 2) Install frontend dependencies
 
 ```bash
 cd app
 npm install
 ```
 
-### Low-Level C Utility (optional)
+### 3) Optional: build low-level C helper
 
 ```bash
 gcc low-level-c/extract_mft.c -o low-level-c/extract_mft.exe -ladvapi32
 ```
 
-## Running
+## Run
 
-### Backend (requires Administrator)
+### Backend (run as Administrator)
 
-Option A — use the batch file:
+Recommended:
 
 ```bash
 run_server_admin.bat
 ```
 
-Option B — manual:
+Manual:
 
 ```bash
 cd backend
-python -m uvicorn main:app --host 127.0.0.1 --port 3000 --reload
-or
-uvicorn main:app --host 127.0.0.1 --port 3000 --reload
+python -m uvicorn main:app --host 127.0.0.1 --port 5000 --reload
 ```
-
-> The backend must run as **Administrator** to read raw NTFS volumes.
 
 ### Frontend
 
@@ -96,30 +127,52 @@ cd app
 npm run dev
 ```
 
-Opens at [http://localhost:5173](http://localhost:5173). The frontend connects to the backend API at `http://127.0.0.1:5000`.
+Frontend: http://localhost:5173  
+Backend API: http://127.0.0.1:5000
 
-## Usage
+## Investigator Workflow
 
-1. **Select Partition** — pick an NTFS drive from the detected partitions
-2. **Extract Artifacts** — the tool sequentially extracts `$MFT`, `$LogFile`, and `$UsnJrnl` from the live volume
-3. **Download / Review** — exported files are saved to `exports/` and available for download
-4. **Analyze** — compare `$SI` vs `$FN` timestamps to detect anomalies; results are classified as High / Medium / Low severity
+1. Open the frontend dashboard
+2. Choose a detected NTFS partition
+3. Trigger extraction for all required artifacts
+4. Review converted CSV outputs and anomaly results
+5. Export data for reporting and further forensic validation
 
-## API Endpoints
+## API Summary
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/drives` | List available NTFS partitions |
-| `POST` | `/extract/extract-mft` | Extract $MFT from a drive |
-| `POST` | `/extract/extract-logfile` | Extract $LogFile from a drive |
-| `POST` | `/extract/extract-usnjrnl` | Extract $UsnJrnl from a drive |
-| `POST` | `/extract/extract-all` | Extract all three artifacts |
-| `POST` | `/analysis/mft/convert` | Convert MFT binary to CSV |
-| `GET` | `/analysis/exports` | List exported files |
-| `GET` | `/health` | Server health check |
+| GET | /drives | List available NTFS partitions |
+| POST | /extract/extract-mft | Extract $MFT |
+| POST | /extract/extract-logfile | Extract $LogFile |
+| POST | /extract/extract-usnjrnl | Extract $UsnJrnl |
+| POST | /extract/extract-all | Extract all three artifacts |
+| POST | /analysis/mft/convert | Convert MFT output to CSV |
+| GET | /analysis/exports | List generated export files |
+| GET | /health | Health check |
+
+## Screenshots
+
+### 1) Application screen
+
+![Application Screen 1](docs/screenshots/screenshot-1.png)
+
+### 2) Application screen
+
+![Application Screen 2](docs/screenshots/screenshot-2.png)
+
+### 3) Application screen
+
+![Application Screen 3](docs/screenshots/screenshot-3.png)
 
 ## Tech Stack
 
-- **Frontend:** React 19, React Router, Tailwind CSS, Vite
-- **Backend:** FastAPI, Uvicorn, psutil
-- **Analysis:** Python struct-based MFT parsing, NTFS raw volume I/O
+- Frontend: React, React Router, Tailwind CSS, Vite
+- Backend: FastAPI, Uvicorn, Python utilities for NTFS parsing
+- Data Processing: CSV conversion and cross-artifact timestamp correlation
+
+## Notes
+
+- Forensic extraction requires elevated privileges on Windows.
+- Use controlled test data before analyzing production systems.
+- Review TROUBLESHOOTING.md and API_CHECK.md for diagnostic guidance.
