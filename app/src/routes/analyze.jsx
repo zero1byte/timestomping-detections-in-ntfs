@@ -181,9 +181,9 @@ export default function AnalyzePage() {
 				</nav>
 
 				{/* ── Top panel ─────────────────────────────────────── */}
-				<div className="rounded-2xl border border-theme-accent/15 bg-white/50 shadow-sm backdrop-blur">
+				<div className="rounded-2xl border border-theme-border bg-theme-surface shadow-sm">
 					{/* Header bar */}
-					<div className="flex items-center justify-between border-b border-theme-accent/10 px-6 py-4">
+					<div className="flex items-center justify-between border-b border-theme-border px-6 py-4">
 						<div className="flex items-center gap-3">
 							{allDone ? (
 								<span className="flex h-8 w-8 items-center justify-center rounded-lg bg-theme-accent/10">
@@ -234,7 +234,7 @@ export default function AnalyzePage() {
 					)}
 
 					{/* Stats row */}
-					<div className="grid grid-cols-3 divide-x divide-theme-accent/10 border-b border-theme-accent/10">
+					<div className="grid grid-cols-3 divide-x divide-theme-border border-b border-theme-border">
 						<div className="px-6 py-3.5 text-center">
 							<p className="text-[11px] font-medium uppercase tracking-wider text-theme-fg/40">Artifacts</p>
 							<p className="mt-0.5 text-lg font-bold tabular-nums">
@@ -254,7 +254,7 @@ export default function AnalyzePage() {
 					</div>
 
 					{/* ── Artifact rows ─────────────────────────────── */}
-					<div className="divide-y divide-theme-accent/8">
+					<div className="divide-y divide-theme-border">
 						{ARTIFACTS.map((artifact, idx) => {
 							const state = progress[artifact.key] || {}
 							const { status, error, result } = state
@@ -276,7 +276,7 @@ export default function AnalyzePage() {
 													? 'border-red-300 bg-red-50 text-red-500'
 													: isExtracting
 														? 'border-theme-accent/30 bg-theme-accent/8 text-theme-accent'
-														: 'border-theme-fg/10 bg-theme-fg/[0.02] text-theme-fg/25'
+													: 'border-theme-border bg-theme-surface text-theme-fg/25'
 										}`}>
 											{isDone ? (
 												<svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
@@ -361,12 +361,12 @@ export default function AnalyzePage() {
 
 				{/* ── Exported files summary ────────────────────────── */}
 				{allDone && successCount > 0 && (
-					<div className="mt-4 rounded-2xl border border-theme-accent/15 bg-white/50 shadow-sm backdrop-blur">
-						<div className="border-b border-theme-accent/10 px-6 py-3.5">
+					<div className="mt-4 rounded-2xl border border-theme-border bg-theme-surface shadow-sm">
+						<div className="border-b border-theme-border px-6 py-3.5">
 							<h2 className="text-sm font-semibold">Exported Files</h2>
 							<p className="text-[11px] text-theme-fg/40">Files are stored on the server at the paths shown below</p>
 						</div>
-						<div className="divide-y divide-theme-accent/8">
+						<div className="divide-y divide-theme-border">
 							{ARTIFACTS.map((artifact) => {
 								const state = progress[artifact.key] || {}
 								if (state.status !== 'done' || !state.result) return null
@@ -410,7 +410,7 @@ export default function AnalyzePage() {
 
 				{/* ── Completion CTA ────────────────────────────────── */}
 				{allDone && (
-					<div className="mt-4 rounded-2xl border border-theme-accent/15 bg-white/50 p-6 shadow-sm backdrop-blur">
+					<div className="mt-4 rounded-2xl border border-theme-border bg-theme-surface p-6 shadow-sm">
 						<div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-between">
 							<div className="flex items-center gap-3">
 								<span className="flex h-10 w-10 items-center justify-center rounded-xl bg-theme-accent/10">

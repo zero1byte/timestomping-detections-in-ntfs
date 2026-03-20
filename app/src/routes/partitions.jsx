@@ -86,7 +86,7 @@ export default function PartitionsPage() {
 		<main className="min-h-screen bg-theme-bg px-6 py-10 text-theme-fg">
 			<section className="mx-auto max-w-6xl">
 				{/* Header card */}
-				<div className="mb-8 rounded-3xl border border-theme-accent/25 bg-theme-bg/85 p-8 shadow-md backdrop-blur-sm">
+				<div className="mb-8 rounded-3xl border border-theme-border bg-theme-surface p-8 shadow-sm">
 					<div className="flex flex-wrap items-start justify-between gap-4">
 						<div>
 							<p className="mb-3 inline-block rounded-full bg-theme-accent/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-theme-accent">
@@ -115,7 +115,7 @@ export default function PartitionsPage() {
 							<button
 								type="button"
 								onClick={fetchPartitions}
-								className="rounded-xl border border-theme-accent/30 bg-theme-bg/80 px-4 py-2.5 text-sm font-semibold text-theme-fg transition hover:bg-theme-accent/10"
+								className="rounded-xl border border-theme-border bg-theme-surface px-4 py-2.5 text-sm font-semibold text-theme-fg transition hover:bg-theme-accent/10"
 							>
 								<span className="flex items-center gap-1.5">
 									<svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4"><path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" /></svg>
@@ -144,7 +144,7 @@ export default function PartitionsPage() {
 
 				{/* Loading state */}
 				{loading && (
-					<div className="flex flex-col items-center justify-center rounded-3xl border border-theme-accent/20 bg-theme-bg/85 py-16 backdrop-blur-sm">
+					<div className="flex flex-col items-center justify-center rounded-3xl border border-theme-border bg-theme-surface py-16">
 						<div className="mb-4 h-10 w-10 animate-spin rounded-full border-4 border-theme-accent/20 border-t-theme-accent" />
 						<p className="text-sm text-theme-fg/60">Scanning partitions…</p>
 					</div>
@@ -166,7 +166,7 @@ export default function PartitionsPage() {
 
 				{/* Empty state */}
 				{!loading && !error && drives.length === 0 && (
-					<div className="rounded-3xl border border-theme-accent/20 bg-theme-bg/85 py-16 text-center backdrop-blur-sm">
+					<div className="rounded-3xl border border-theme-border bg-theme-surface py-16 text-center">
 						<div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-theme-accent/10">
 							<svg viewBox="0 0 24 24" fill="none" className="h-6 w-6 text-theme-accent"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="1.8" /><path d="M3 15h18" stroke="currentColor" strokeWidth="1.8" /><circle cx="17" cy="18" r="1" fill="currentColor" /></svg>
 						</div>
@@ -258,7 +258,7 @@ export default function PartitionsPage() {
 						</div>
 
 						{/* Analyze CTA */}
-						<div className="mt-8 flex flex-col items-center rounded-3xl border border-theme-accent/20 bg-theme-bg/85 px-6 py-8 backdrop-blur-sm">
+						<div className="mt-8 flex flex-col items-center rounded-3xl border border-theme-border bg-theme-surface px-6 py-8">
 							{selectedPartition ? (
 								<>
 									<p className="mb-4 text-sm text-theme-fg/70">

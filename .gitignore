@@ -11,3 +11,5 @@ backend/routes/disks/__pycache__/*
 backend/routes/logs/__pycache__/*
 isea/$LogFile
 backend/__pycache__/*
+exports/*
+exports/__pycache__/*

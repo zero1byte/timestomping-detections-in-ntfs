@@ -156,23 +156,66 @@ def parse_exe_output(output: str) -> Dict[str, Any]:
     return parsed
 
 
-def extract_mft(drive_letter: str, output_path: str, max_records: int = 100000) -> dict:
+def _get_actual_mft_size(data, mft_record_size, bytes_per_sector):
     """
-    Extract MFT from a live NTFS drive
-    
+    Parse MFT record 0 ($MFT's own record) to get the real MFT file size
+    from its $DATA attribute.
+    """
+    record = bytearray(data[:mft_record_size])
+
+    if record[0:4] != b'FILE':
+        return None
+
+    # Apply fixup array
+    fixup_offset = struct.unpack_from("<H", record, 0x04)[0]
+    fixup_count = struct.unpack_from("<H", record, 0x06)[0]
+
+    if fixup_count >= 2 and fixup_offset + fixup_count * 2 <= len(record):
+        signature = struct.unpack_from("<H", record, fixup_offset)[0]
+        for i in range(1, fixup_count):
+            sector_end = i * bytes_per_sector - 2
+            if sector_end + 1 < len(record):
+                current = struct.unpack_from("<H", record, sector_end)[0]
+                if current == signature:
+                    fixup_val = struct.unpack_from("<H", record, fixup_offset + i * 2)[0]
+                    struct.pack_into("<H", record, sector_end, fixup_val)
+
+    # Walk attributes to find $DATA (type 0x80)
+    attr_offset = struct.unpack_from("<H", record, 0x14)[0]
+
+    while attr_offset + 8 <= mft_record_size:
+        attr_type = struct.unpack_from("<I", record, attr_offset)[0]
+        if attr_type == 0xFFFFFFFF:
+            break
+        attr_length = struct.unpack_from("<I", record, attr_offset + 4)[0]
+        if attr_length == 0 or attr_offset + attr_length > mft_record_size:
+            break
+        if attr_type == 0x80:  # $DATA
+            non_resident = record[attr_offset + 8]
+            if non_resident:
+                real_size = struct.unpack_from("<Q", record, attr_offset + 0x30)[0]
+                alloc_size = struct.unpack_from("<Q", record, attr_offset + 0x28)[0]
+                return real_size if real_size > 0 else alloc_size
+        attr_offset += attr_length
+
+    return None
+
+
+def extract_mft(drive_letter: str, output_path: str) -> dict:
+    """
+    Extract MFT from a live NTFS drive.
+    Reads the actual MFT size from record 0's $DATA attribute.
+
     Args:
         drive_letter: Drive letter (e.g., 'C')
         output_path: Path to save the extracted MFT
-        max_records: Maximum number of MFT records to extract
-    
+
     Returns:
         dict with extraction details
     """
     # Normalize drive letter
     drive_letter = drive_letter.rstrip(":").upper()
-    # drive_path = f"{drive_letter}:"
     drive_path = f"\\\\.\\{drive_letter}:"
-    drive_path = f"C:"
     isAdmin=is_admin()
     if not isAdmin:
         raise HTTPException(
@@ -233,8 +276,31 @@ def extract_mft(drive_letter: str, output_path: str, max_records: int = 100000) 
             ctypes.windll.kernel32.CloseHandle(handle)
             raise IOError("Failed to seek to MFT")
         
-        # Calculate how much MFT to read
-        mft_size = ntfs.mft_record_size * max_records
+        # Read MFT record 0 to determine the actual MFT size
+        record0_buf = ctypes.create_string_buffer(ntfs.mft_record_size)
+        success = ctypes.windll.kernel32.ReadFile(
+            handle, record0_buf, ntfs.mft_record_size, ctypes.byref(bytes_read), None
+        )
+        
+        actual_mft_size = None
+        if success and bytes_read.value == ntfs.mft_record_size:
+            actual_mft_size = _get_actual_mft_size(
+                record0_buf.raw, ntfs.mft_record_size, ntfs.bytes_per_sector
+            )
+        
+        if actual_mft_size and actual_mft_size > 0:
+            mft_size = actual_mft_size
+            print(f"[+] Actual $MFT size from record 0: {mft_size:,} bytes ({mft_size / (1024*1024):.2f} MB)")
+        else:
+            mft_size = ntfs.mft_record_size * 100000
+            print(f"[!] Could not determine actual MFT size, falling back to ~{mft_size / (1024*1024):.2f} MB cap")
+        
+        # Re-seek to MFT start
+        mft_offset_high2 = ctypes.c_long((ntfs.mft_offset >> 32) & 0xFFFFFFFF)
+        mft_offset_low2 = ctypes.c_ulong(ntfs.mft_offset & 0xFFFFFFFF)
+        ctypes.windll.kernel32.SetFilePointer(
+            handle, mft_offset_low2, ctypes.byref(mft_offset_high2), 0
+        )
         
         # Read MFT in chunks
         chunk_size = 1024 * 1024  # 1MB chunks

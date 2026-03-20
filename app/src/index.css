@@ -4,18 +4,52 @@
 
 :root {
   font-family: "Segoe UI", "Calibri", "Trebuchet MS", sans-serif;
-  --theme-bg: #d9dee6;
-  --theme-fg: #1f2937;
-  --theme-accent: #2f5d8a;
+  --theme-bg: #e8ecf2;
+  --theme-fg: #1a202c;
+  --theme-accent: #3068a0;
+  --theme-surface: #f3f5f8;
+  --theme-border: #cdd4de;
   color: var(--theme-fg);
   background-color: var(--theme-bg);
+}
+
+:root.dark {
+  --theme-bg: #0c1220;
+  --theme-fg: #c8d1dc;
+  --theme-accent: #5a9fd4;
+  --theme-surface: #151f30;
+  --theme-border: #1e2d42;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  background: radial-gradient(circle at top right, #cfd6e1 0%, var(--theme-bg) 55%, #c8d1dd 100%);
+  background: var(--theme-bg);
 }
+
+/* semantic dark overrides for status colors */
+:root.dark .bg-red-50\/80,
+:root.dark .bg-red-50 {
+  background-color: rgba(127, 29, 29, 0.2) !important;
+}
+:root.dark .bg-amber-50 {
+  background-color: rgba(120, 53, 15, 0.2) !important;
+}
+:root.dark .bg-green-100 {
+  background-color: rgba(6, 78, 59, 0.2) !important;
+}
+:root.dark .text-red-700 { color: #f87171 !important; }
+:root.dark .text-red-600\/80 { color: rgba(248,113,113,.8) !important; }
+:root.dark .text-red-600 { color: #f87171 !important; }
+:root.dark .text-red-500 { color: #f87171 !important; }
+:root.dark .text-red-500\/80 { color: rgba(248,113,113,.8) !important; }
+:root.dark .text-amber-700 { color: #fbbf24 !important; }
+:root.dark .text-amber-600 { color: #fbbf24 !important; }
+:root.dark .text-green-700 { color: #34d399 !important; }
+:root.dark .border-red-200 { border-color: rgba(248,113,113,.15) !important; }
+:root.dark .border-red-300 { border-color: rgba(248,113,113,.15) !important; }
+:root.dark .border-red-300\/50 { border-color: rgba(248,113,113,.12) !important; }
+:root.dark .border-amber-300\/40 { border-color: rgba(251,191,36,.1) !important; }
 
 * {
   box-sizing: border-box;
